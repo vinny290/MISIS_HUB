@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 
+import names from "./name.json";
+
 const RiverTaxiApp: React.FC = () => {
   const [startPoint, setStartPoint] = useState("");
   const [endPoint, setEndPoint] = useState("");
@@ -17,21 +19,34 @@ const RiverTaxiApp: React.FC = () => {
       >
         <div>
           <label>Откуда:</label>
-          <input
+          <select
             style={{ width: "100%", marginBottom: "10px" }}
-            type="text"
             value={startPoint}
             onChange={(e) => setStartPoint(e.target.value)}
-          />
+          >
+            <option value="">Выберите пункт</option>
+            {names.map((name) => (
+              <option key={name.ID} value={name.Name}>
+                {name.Name}
+              </option>
+            ))}
+          </select>
         </div>
+
         <div>
           <label>Куда:</label>
-          <input
+          <select
             style={{ width: "100%", marginBottom: "10px" }}
-            type="text"
             value={endPoint}
             onChange={(e) => setEndPoint(e.target.value)}
-          />
+          >
+            <option value="">Выберите пункт</option>
+            {names.map((name) => (
+              <option key={name.ID} value={name.Name}>
+                {name.Name}
+              </option>
+            ))}
+          </select>
         </div>
         <button
           style={{ width: "100%", backgroundColor: "#a0d468", padding: "10px" }}
@@ -47,19 +62,13 @@ const RiverTaxiApp: React.FC = () => {
             height="100%"
             width="100%"
           >
-            {/* Пример добавления причалов */}
-            <Placemark
-              geometry={[55.75222, 37.61556]}
-              options={{ preset: "islands#circleIcon", iconColor: "#ffcc00" }}
-            />
-            <Placemark
-              geometry={[55.75583, 37.6173]}
-              options={{ preset: "islands#circleIcon", iconColor: "#ffcc00" }}
-            />
-            <Placemark
-              geometry={[55.75856, 37.62044]}
-              options={{ preset: "islands#circleIcon", iconColor: "#ffcc00" }}
-            />
+            {names.map((name) => (
+              <Placemark
+                key={name.ID}
+                geometry={[name.Longitude, name.Latitude]}
+                options={{ preset: "islands#circleIcon", iconColor: "#000" }}
+              />
+            ))}
           </Map>
         </YMaps>
       </div>
