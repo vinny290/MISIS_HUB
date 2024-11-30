@@ -5,12 +5,14 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import { Provider } from "./provider.tsx";
 import "@/styles/globals.css";
+import RiverTaxiApp from './components/RiverTaxiApp.tsx'
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Provider>
-        <App />
+        {/* <App /> */}
+        <RiverTaxiApp/>
       </Provider>
     </BrowserRouter>
   </React.StrictMode>,

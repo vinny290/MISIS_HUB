@@ -45,6 +45,12 @@
         "argsIgnorePattern": "^_.*?$"
       }
     ],
+    "prettier/prettier": [
+  "error",
+  {
+    "endOfLine": "auto"
+  }
+],
     "import/order": [
       "warn",
       {
