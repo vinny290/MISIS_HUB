@@ -6,18 +6,34 @@ import { Button } from "@nextui-org/button";
 
 import names from "./name.json";
 import schedules from "./infos.json";
+import { calculateDistance } from './CalculateDistance'
 
 const RiverTaxiApp: React.FC = () => {
   const [startPoint, setStartPoint] = useState("");
   const [endPoint, setEndPoint] = useState("");
-  const [selectedDetails, setSelectedDetails] = useState<any | null>(null); // Состояние для хранения расписания
+  const [selectedDetails, setSelectedDetails] = useState<any | null>(null); 
+  const [distance, setDistance] = useState<number | null>(null);
+  const [travelTime, setTravelTime] = useState<number | null>(null);
 
   const handleSearch = () => {
-    // Логика поиска маршрута
-    console.log("Searching route from", startPoint, "to", endPoint);
+    const startLocation = names.find((name) => name.Name === startPoint);
+    const endLocation = names.find((name) => name.Name === endPoint);
+
+    if (startLocation && endLocation) {
+      const calculatedDistance = calculateDistance(
+        startLocation.Latitude,
+        startLocation.Longitude,
+        endLocation.Latitude,
+        endLocation.Longitude,
+      );
+
+      setDistance(calculatedDistance);
+      const speed = 20; // Скорость корабля в км/ч
+      const time = (calculatedDistance / speed) * 60; // Время в часах
+      setTravelTime(time);
+    }
   };
 
-  // Получение данных для выбранного причала (функция мемоизирована для оптимизации)
   const getDetailsForPlace = useCallback(
     (placeName: string) => {
       return (
@@ -27,7 +43,6 @@ const RiverTaxiApp: React.FC = () => {
     [schedules],
   );
 
-  // Обработчик нажатия на Placemark
   const handlePlacemarkClick = (placeName: string) => {
     const details = getDetailsForPlace(placeName);
 
@@ -76,6 +91,22 @@ const RiverTaxiApp: React.FC = () => {
         >
           Найти
         </Button>
+        {distance !== null && (
+          <div
+            style={{
+              marginTop: "20px",
+              padding: "10px",
+              backgroundColor: "#dfdf",
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+            }}
+          >
+            <h4>Расстояние между пунктами:</h4>
+            <p>{distance.toFixed(2)} км</p>
+            <h4>Время в пути:</h4>
+            <p>~{travelTime?.toFixed(1)} Минут(ы)</p>
+          </div>
+        )}
       </div>
       <div style={{ width: "70%" }}>
         <YMaps>
