@@ -6,6 +6,7 @@
  ```
 **Прототипы**
 https://drive.google.com/drive/folders/1uH2evREufQdEncD2qYA3b2bKIIItsRNc
+
 1. 
    - **Клонировать репозиторий:**
      ```bash
