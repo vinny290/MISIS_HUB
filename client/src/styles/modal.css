@@ -1,0 +1,9 @@
+.modal{
+    position: absolute;
+    border: 1px solid red;
+    height: fit-content;
+    width: 30%;
+    z-index: 1000;
+    background-color: white;
+    padding: 15px;
+}

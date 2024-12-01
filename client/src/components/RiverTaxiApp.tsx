@@ -3,15 +3,17 @@
 import React, { useCallback, useState } from "react";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { Button } from "@nextui-org/button";
+import { Card, CardBody } from "@nextui-org/card";
+import { Autocomplete, AutocompleteItem } from "@nextui-org/autocomplete";
 
 import names from "./name.json";
 import schedules from "./infos.json";
-import { calculateDistance } from './CalculateDistance'
+import { calculateDistance } from "./CalculateDistance";
 
 const RiverTaxiApp: React.FC = () => {
   const [startPoint, setStartPoint] = useState("");
   const [endPoint, setEndPoint] = useState("");
-  const [selectedDetails, setSelectedDetails] = useState<any | null>(null); 
+  const [selectedDetails, setSelectedDetails] = useState<any | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [travelTime, setTravelTime] = useState<number | null>(null);
 
@@ -30,6 +32,7 @@ const RiverTaxiApp: React.FC = () => {
       setDistance(calculatedDistance);
       const speed = 20; // Скорость корабля в км/ч
       const time = (calculatedDistance / speed) * 60; // Время в часах
+
       setTravelTime(time);
     }
   };
@@ -52,63 +55,54 @@ const RiverTaxiApp: React.FC = () => {
   return (
     <div style={{ display: "flex", width: "100%", height: "100vh" }}>
       <div
-        style={{ width: "30%", padding: "20px", backgroundColor: "#f0f0f0" }}
+        style={{ width: "25%", padding: "20px", backgroundColor: "#fff" }}
       >
         <div>
-          <label>Откуда:</label>
-          <select
+          <Autocomplete
+            className="mb-5"
+            inputValue={startPoint}
+            placeholder="Откуда"
             style={{ width: "100%", marginBottom: "10px" }}
-            value={startPoint}
-            onChange={(e) => setStartPoint(e.target.value)}
+            onInputChange={(value) => setStartPoint(value)}
+            onSelectionChange={(key) => setStartPoint(key)}
           >
-            <option value="">Выберите пункт</option>
             {names.map((name) => (
-              <option key={name.ID} value={name.Name}>
+              <AutocompleteItem key={name.ID} value={name.Name}>
                 {name.Name}
-              </option>
+              </AutocompleteItem>
             ))}
-          </select>
+          </Autocomplete>
         </div>
 
         <div>
-          <label>Куда:</label>
-          <select
+          <Autocomplete
+            className="mb-5"
+            inputValue={endPoint}
+            placeholder="Куда"
             style={{ width: "100%", marginBottom: "10px" }}
-            value={endPoint}
-            onChange={(e) => setEndPoint(e.target.value)}
+            onInputChange={(value) => setEndPoint(value)}
+            onSelectionChange={(key) => setEndPoint(key)}
           >
-            <option value="">Выберите пункт</option>
             {names.map((name) => (
-              <option key={name.ID} value={name.Name}>
+              <AutocompleteItem key={name.ID} value={name.Name}>
                 {name.Name}
-              </option>
+              </AutocompleteItem>
             ))}
-          </select>
+          </Autocomplete>
         </div>
-        <Button
-          style={{ width: "100%", backgroundColor: "#a0d468", padding: "10px" }}
-          onClick={handleSearch}
-        >
-          Найти
+        <Button className="w-full bg-[#00aae6] p-2" onClick={handleSearch}>
+          <p className="font-medium text-white p-0 text-xl">Найти</p>
         </Button>
-        {distance !== null && (
-          <div
-            style={{
-              marginTop: "20px",
-              padding: "10px",
-              backgroundColor: "#dfdf",
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-            }}
-          >
-            <h4>Расстояние между пунктами:</h4>
+        {distance !== null && travelTime !== null && (
+          <Card className="mt-5 p-2">
+            <h4 className="font-medium">Расстояние между пунктами:</h4>
             <p>{distance.toFixed(2)} км</p>
-            <h4>Время в пути:</h4>
-            <p>~{travelTime?.toFixed(1)} Минут(ы)</p>
-          </div>
+            <h4 className="font-medium">Время в пути:</h4>
+            <p>~{travelTime.toFixed(1)} Минут(ы)</p>
+          </Card>
         )}
       </div>
-      <div style={{ width: "70%" }}>
+      <div style={{ width: "75%" }}>
         <YMaps>
           <Map
             defaultState={{ center: [55.751244, 37.618423], zoom: 14 }}
@@ -125,7 +119,7 @@ const RiverTaxiApp: React.FC = () => {
                   geometry={[name.Longitude, name.Latitude]}
                   options={{
                     preset: "islands#circleIcon",
-                    iconColor: isSelected ? "#000ade" : "#a4a4a4",
+                    iconColor: isSelected ? "#00AAE6" : "#a4a4a4",
                   }}
                   onClick={() => handlePlacemarkClick(name.Name)} // При нажатии показываем расписание
                 />
@@ -135,76 +129,58 @@ const RiverTaxiApp: React.FC = () => {
         </YMaps>
       </div>
       {/* Модальное окно для показа расписания */}
+
       {selectedDetails && (
-        <div
-          style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            backgroundColor: "white",
-            padding: "20px",
-            boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
-            zIndex: 1000,
-            maxWidth: "500px",
-            height: "500px",
-            overflowY: "auto",
-          }}
-        >
-          <h3>Детали расписания</h3>
-          {selectedDetails.map((detail: any) => (
-            <div key={detail.uniq} style={{ marginBottom: "15px" }}>
-              <p>
-                <strong>Название причала:</strong> {detail.Name}
-              </p>
-              <p>
-                <strong>Название судна:</strong> {detail.ShipName || "Отменено"}
-              </p>
-              <p>
-                <strong>Маршрут:</strong> {detail["NameRoute"]}
-              </p>
-              <p>
-                <strong>Швартовочное место:</strong> {detail.BerthLetter}
-              </p>
-              <p>
-                <strong>Дата действия:</strong> {detail.StartRecord} -{" "}
-                {detail.EndRecord}
-              </p>
-              <p>
-                <strong>Причаливание:</strong> {detail.Approach}
-              </p>
-              <p>
-                <strong>Отход:</strong> {detail.Waste}
-              </p>
-            </div>
-          ))}
-          <button
-            style={{
-              marginTop: "10px",
-              padding: "10px",
-              backgroundColor: "#007BFF",
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-            }}
-            onClick={() => setSelectedDetails(null)}
-          >
-            Закрыть
-          </button>
-        </div>
+        <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-5 shadow-lg z-[1000] max-w-[500px] h-[500px] overflow-y-auto">
+          <CardBody>
+            <h3 className="text-center">Детали расписания:</h3>
+            {selectedDetails.map((detail: any) => (
+              <div key={detail.uniq} style={{ marginBottom: "15px" }}>
+                <p>
+                  <strong>Название причала:</strong> {detail.Name}
+                </p>
+                <p>
+                  <strong>Название судна:</strong>{" "}
+                  {detail.ShipName || "Отменено"}
+                </p>
+                <p>
+                  <strong>Маршрут:</strong> {detail["NameRoute"]}
+                </p>
+                <p>
+                  <strong>Швартовочное место:</strong> {detail.BerthLetter}
+                </p>
+                <p>
+                  <strong>Дата действия:</strong> {detail.StartRecord} -{" "}
+                  {detail.EndRecord}
+                </p>
+                <p>
+                  <strong>Причаливание:</strong> {detail.Approach}
+                </p>
+                <p>
+                  <strong>Отход:</strong> {detail.Waste}
+                </p>
+              </div>
+            ))}
+            <button
+              style={{
+                marginTop: "10px",
+                padding: "10px",
+                backgroundColor: "#007BFF",
+                color: "white",
+                border: "none",
+                cursor: "pointer",
+              }}
+              onClick={() => setSelectedDetails(null)}
+            >
+              Закрыть
+            </button>
+          </CardBody>
+        </Card>
       )}
       {/* Затемнение фона */}
       {selectedDetails && (
         <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            zIndex: 999,
-          }}
+          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-60 z-[999]"
           onClick={() => setSelectedDetails(null)}
         />
       )}
