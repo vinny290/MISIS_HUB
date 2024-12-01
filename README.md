@@ -26,7 +26,7 @@ https://drive.google.com/drive/folders/1uH2evREufQdEncD2qYA3b2bKIIItsRNc
      npm install
      node app.js
      ```
-3. 
+4. 
    - **Версии Библиотек:**
      ```bash
      "dependencies": {
@@ -82,4 +82,34 @@ https://drive.google.com/drive/folders/1uH2evREufQdEncD2qYA3b2bKIIItsRNc
         "vite": "^5.2.0",
         "vite-tsconfig-paths": "^4.3.2"
       }
+     ```
+   2. 
+   - **ЗСтруктура проекта:**
+     ```bash
+     /сlient
+        /public
+        /src
+            components/:  содержит компоненты интерфейса.
+            config/:
+            site.ts: Конфигурационные файлы проекта.
+            hooks/:
+            use-theme.ts: Пользовательские хуки
+            layouts/:
+            default.tsx: Макеты страниц
+            pages/:
+            index.tsx: Главная страница приложения.
+            styles/:
+            globals.css: Глобальные стили приложения.
+            modal.css: Стили для модальных окон.
+            taxi.css: Стили файла
+            types/:
+            index.ts: Определения типов TypeScript.
+            utils/:
+            getDetailsForPlace.tsx: Утилитарные функции
+     
+     /server: 
+         public/: Публичные ресурсы
+         app.js: Основной файл приложения
+         name.json:  файл с данными в формате JSON
+         ships.json: файл с данными в формате JSON
      ```
