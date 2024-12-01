@@ -13,6 +13,7 @@ import schedules from "./schedules.json";
 import { calculateDistance } from "./CalculateDistance";
 
 import { Name, Ships } from "@/types";
+import "../styles/taxi.css";
 
 const RiverTaxiApp: React.FC = () => {
   const [names, setNames] = useState<Name[]>([]);
@@ -99,9 +100,9 @@ const RiverTaxiApp: React.FC = () => {
   };
 
   return (
-    <div style={{ display: "flex", width: "100%", height: "100vh" }}>
-      <div style={{ width: "25%", padding: "20px", backgroundColor: "#fff" }}>
-        <div className="mb-2">
+    <div className="container">
+      <div className="sidebar">
+        <div className="image mb-2">
           <Image
             alt="Речной транспорт"
             src="../../public/logo.svg"
@@ -166,12 +167,12 @@ const RiverTaxiApp: React.FC = () => {
           </Card>
         )}
       </div>
-      <div style={{ width: "75%" }}>
+      <div className="map">
         <YMaps>
           <Map
             defaultState={{ center: [55.751244, 37.618423], zoom: 14 }}
-            height="100%"
-            width="100%"
+            height="100vh"
+            width="100vw"
           >
             {names.map((name) => {
               const isSelected =
@@ -195,8 +196,12 @@ const RiverTaxiApp: React.FC = () => {
                   key={ship.ID}
                   geometry={ship.Coordinates}
                   options={{
-                    preset: "islands#circleIcon",
-                    iconColor: "#fff000",
+                    // Используем эмодзи корабля 🚢 или изображение
+                    iconLayout: "default#image",
+                    iconImageHref:
+                      "https://cdn0.iconfinder.com/data/icons/citycons/150/Citycons_ship-1024.png", // Ссылка на изображение корабля
+                    iconImageSize: [32, 32], // Размер изображения (ширина, высота)
+                    iconImageOffset: [-16, -16], // Смещение иконки относительно точки (центрирование)
                   }}
                 />
               );
