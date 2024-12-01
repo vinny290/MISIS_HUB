@@ -1,16 +1,60 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-
-const orderRoutes = require('./routes/orders');
-const routeRoutes = require('./routes/routes');
+const cors = require('cors'); // Подключаем CORS
+const fs = require('fs'); // Для чтения файла
+const path = require('path');
 
 const app = express();
-app.use(bodyParser.json());
+const PORT = 3000;
 
-app.use('/orders', orderRoutes);
-app.use('/routes', routeRoutes);
+// Включаем CORS для всех маршрутов
+app.use(cors());
 
-const PORT = process.env.PORT || 3000;
+// Создаем API-роут для отправки JSON-данных
+app.get('/data', (req, res) => {
+  const filePath = path.join(__dirname, 'name.json');
+
+  // Читаем данные из файла
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Ошибка чтения файла:', err);
+      return res.status(500).send('Ошибка сервера');
+    }
+
+    // Отправляем данные клиенту
+    res.json(JSON.parse(data));
+  });
+});
+app.get('/ships', (req, res) => {
+  const filePath = path.join(__dirname, 'ships.json');
+
+  // Читаем данные из файла
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Ошибка чтения файла:', err);
+      return res.status(500).send('Ошибка сервера');
+    }
+
+    // Отправляем данные клиенту
+    res.json(JSON.parse(data));
+  });
+});
+
+app.get('/schedules', (req, res) => {
+  const filePath = path.join(__dirname, 'schedules.json');
+
+  // Читаем данные из файла
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Ошибка чтения файла:', err);
+      return res.status(500).send('Ошибка сервера');
+    }
+
+    // Отправляем данные клиенту
+    res.json(JSON.parse(data));
+  });
+});
+
+// Запуск сервера
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Сервер запущен на http://localhost:${PORT}`);
 });

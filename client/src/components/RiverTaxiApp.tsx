@@ -1,21 +1,28 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { Button } from "@nextui-org/button";
 import { Card, CardBody } from "@nextui-org/card";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/autocomplete";
+import { Image } from "@nextui-org/image";
+import { Switch } from "@nextui-org/switch";
+import axios from "axios";
 
-import names from "./name.json";
-import schedules from "./infos.json";
+import schedules from "./schedules.json";
 import { calculateDistance } from "./CalculateDistance";
 
+import { Name, Ships } from "@/types";
+
 const RiverTaxiApp: React.FC = () => {
+  const [names, setNames] = useState<Name[]>([]);
+  const [ships, setShips] = useState<Ships[]>([]);
   const [startPoint, setStartPoint] = useState("");
   const [endPoint, setEndPoint] = useState("");
   const [selectedDetails, setSelectedDetails] = useState<any | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [travelTime, setTravelTime] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = () => {
     const startLocation = names.find((name) => name.Name === startPoint);
@@ -31,11 +38,42 @@ const RiverTaxiApp: React.FC = () => {
 
       setDistance(calculatedDistance);
       const speed = 20; // Скорость корабля в км/ч
-      const time = (calculatedDistance / speed) * 60; // Время в часах
+      const time = (calculatedDistance / speed) * 60;
 
       setTravelTime(time);
     }
   };
+
+  // Fetch data from the server when the component mounts
+  useEffect(() => {
+    const apiUrl = "http://localhost:3000/data";
+
+    axios
+      .get(apiUrl)
+      .then((resp) => {
+        const names = resp.data;
+
+        setNames(names);
+      })
+      .catch((error) => {
+        console.error("Error fetching names:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    const apiUrl = "http://localhost:3000/ships";
+
+    axios
+      .get(apiUrl)
+      .then((resp) => {
+        const ships = resp.data;
+
+        setShips(ships);
+      })
+      .catch((error) => {
+        console.error("Error fetching ships:", error);
+      });
+  }, []);
 
   const getDetailsForPlace = useCallback(
     (placeName: string) => {
@@ -52,11 +90,27 @@ const RiverTaxiApp: React.FC = () => {
     setSelectedDetails(details); // Изменение состояния только при клике
   };
 
+  const handleOrderClick = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      handleSearch();
+    }, 2000);
+  };
+
   return (
     <div style={{ display: "flex", width: "100%", height: "100vh" }}>
-      <div
-        style={{ width: "25%", padding: "20px", backgroundColor: "#fff" }}
-      >
+      <div style={{ width: "25%", padding: "20px", backgroundColor: "#fff" }}>
+        <div className="mb-2">
+          <Image
+            alt="Речной транспорт"
+            src="../../public/logo.svg"
+            width="300%"
+          />
+        </div>
+        <h1 className="text-left font-semibold text-2xl mb-3">
+          Параметры маршрута:
+        </h1>
         <div>
           <Autocomplete
             className="mb-5"
@@ -90,8 +144,18 @@ const RiverTaxiApp: React.FC = () => {
             ))}
           </Autocomplete>
         </div>
-        <Button className="w-full bg-[#00aae6] p-2" onClick={handleSearch}>
-          <p className="font-medium text-white p-0 text-xl">Найти</p>
+        <div className="mb-3">
+          <Switch>Буду с инвалидным креслом</Switch>
+        </div>
+        <div className="mb-3">
+          <Switch>Буду с собакой-повадырем</Switch>
+        </div>
+        <Button
+          className="w-full bg-[#00aae6] p-2"
+          isLoading={loading}
+          onClick={handleOrderClick}
+        >
+          <p className="font-medium text-white p-0 text-xl">Заказать</p>
         </Button>
         {distance !== null && travelTime !== null && (
           <Card className="mt-5 p-2">
@@ -122,6 +186,18 @@ const RiverTaxiApp: React.FC = () => {
                     iconColor: isSelected ? "#00AAE6" : "#a4a4a4",
                   }}
                   onClick={() => handlePlacemarkClick(name.Name)} // При нажатии показываем расписание
+                />
+              );
+            })}
+            {ships.map((ship) => {
+              return (
+                <Placemark
+                  key={ship.ID}
+                  geometry={ship.Coordinates}
+                  options={{
+                    preset: "islands#circleIcon",
+                    iconColor: "#fff000",
+                  }}
                 />
               );
             })}
